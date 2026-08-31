@@ -8,3 +8,4 @@ wheels/
 
 # Virtual environments
 .venv
+salas_rentals_system.db
