@@ -131,13 +131,4 @@ Processes the raw rental timelines to calculate complex accounting logic, output
 ### `etl_pipeline.py`
 
 
--------------
-
-
-# REPO structure
-| **Document Type**    | **File**                    | **Purpose**                                                                                         |
-| -------------------- | --------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Project Overview** | `README.md`                 | Executive summary, architecture diagram, business questions answered, and local setup instructions. |
-| **Data Dictionary**  | `models/**/*.yml`           | Column-level descriptions, data types, and primary key definitions written directly within dbt.     |
-| **Pipeline Config**  | `.github/workflows/dbt.yml` | CI/CD automation proving familiarity with version control and code quality checks.                  |
-| **Visual Proof**     | `assets/dashboard.png`      | Evidence that the transformed data successfully powers a downstream BI tool.                        |
+-------------                    |
