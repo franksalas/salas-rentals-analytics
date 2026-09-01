@@ -11,3 +11,4 @@ models/.DS_Store
 .venv
 salas_rentals_system.db
 salas_rentals_data_warehouse.db
+.github

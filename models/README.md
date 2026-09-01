@@ -1,134 +1,163 @@
-use case for database for salas rentals on how to transform raw data into gold layer
 
+```
+.
+|____OLAP
+| |____etl_pipeline.py
+|____.DS_Store
+|____OLTP
+| |____02_generate_routing_history.py
+| |____03_generate_financials.py
+| |____01_generate_rentals.py
+|____README.md
+|____run_models.py
+```
 
-## Files: Generating DB
+## Files: Generating OLTP
 ### `generate_rentals.py`
 Uses the Synthetic Data Vault (SDV) to generate a statistically realistic, highly normalized relational database containing master heavy equipment data and rental contracts.
-#### Tables & Fields
-
-**Equipments** (Master Data)
-	- EquipmentID: 
-		- Unique primary key identifying the physical asset.
-		- `EQ-101`
-		- `sdv-id-nBVySd`
-	- Description
-		- The name and specifications of the asset
-		- `8x24 Steel Trench Shield`
-	- DailyRate
-		- The baseline dollar amount charged per day to rent the item.
-		- `41`
-	- ReplacementCost
-		- The total monetary value charged to the customer if the asset is destroyed or lost on-site.
-		- `59785`
-	- AssetCategory
-		- The high-level operational classification.
-		- `Trench Safety`
-
-- **Contracts**(Transactional Core)
-	- ContractID
-		- Unique primary key identifying the rental agreement.
-		- `sdv-id-nGTeos`
-	- CustomerID
-		- Foreign key identifying the client renting the equipment.
-		- `CUST-15`
-	- OutDate
-		- The calendar date the equipment physically left the rental yard.
-		- `2026-03-09 00:00:00`
-	- ExpectedReturnDate
-		- The initial agreed-upon date the customer stated they would return the equipment.
-		- `2026-04-08 00:00:00`
-	- ActualReturnDate
-		- The true date the equipment was returned. Remains `NULL` if the asset is still on-rent.
-		- `NULL`
-	- Status
-		- The overarching state of the rental agreement 
-		- `On-Rent`
-	- SalesRep
-		- The name of the employee who manages the account and earns commissions on the revenue.
-		- `Jose (Houston North)`
-
-- **Contract line** (Transactional Core)
-- LineID
-	- Unique primary key for the specific row item on the contract.
-	- `sdv-id-fVIkUX`
-- ContractID
-	- Foreign key linking back to the parent `Contracts` table.
-	- `sdv-id-NSZqBz`
-- EquipmentID
-	- Foreign key linking to the specific asset rented from the `Equipment` table.
-	- `sdv-id-BdUToU`
-- Quanitty
-	- The physical count of that specific asset rented on this line (e.g., 4 Gas Monitors).
-	- `6`
 
 ### `generate_routing_history.py`
 Reads the rental contracts and generates a messy operational tracking log, intentionally injecting duplicate pings and time-travel errors for data cleansing practice.
 
-#### Table
-**RoutingHistory** (Bronze Operational Layer)
-- RoutingID
-	- Unique primary key for the specific tracking event.
-	- `bcdbed07-44dc-4848-9320-9302b68ba064`
-- EquipmentID
-	- Foreign key identifying which asset moved.
-	- `sdv-id-xRSvHG`
-- ContractID
-	- Foreign key identifying which contract triggered the movement.
-	- `sdv-id-ZJkFZN`
-- Status
-	- The operational state at that exact moment (e.g., Reserved, Dispatched, On-Site, Off-Rent, Inspected).
-	- `Reserved`
-- EventTimestamp
-	- The precise date and time the system recorded the status change.
-	- `2026-03-19 00:00:00`
-
 ### `generate_financials.py`
 Processes the rental contracts to calculate complex accounting logic, outputting monthly amortized revenue recognition and tiered sales commissions into General Ledger tables.
 Processes the raw rental timelines to calculate complex accounting logic, outputting monthly amortized revenue and tiered sales commissions based on billable days. _Generated Tables & Columns:_ `GeneralLedger` (TransactionID, ContractID, Date, Account, Debit, Credit) and `Commissions` (CommissionID, ContractID, SalesRep, PeriodEnding, CommissionRate, Amount).
+## Master Data & Transactional Core (OLTP)
 
-### Tables
-#### GeneralLedger
-- TransactionID
-	- Unique primary key for the double-entry accounting record.
-	- `273c3eaf-ec8a-4705-8b95-182443a757af`
-- ContractID
-	- Foreign key linking the revenue back to the specific rental agreement.
-	- `sdv-id-NSZqBz`
-- Date
-	- The date the revenue is officially recognized (usually the last day of the month or the return date).
-	- `2026-02-28 00:00:00`
-- Account
-	- The financial bucket being impacted (e.g., 1100-Accounts Receivable, 4000-Rental Revenue).
-	- `1100-Accounts Receivable`
-- Debit
-	- An accounting entry that increases an asset (like Accounts Receivable) or decreases a liability.
-	- `14674`
-- Credit
-	- An accounting entry that increases a liability or recognizes earned revenue.
-	- `0`
+### **Equipment**
 
-#### **Commissions** (Gold Financial Layer)
-- CommissionID
-	- Unique primary key for the payout record.
-	- `c1cbb89f-b22f-4de8-95c9-dc4b29ace9de`
-- ContractID
-	- Foreign key linking the payout to the rental agreement.
-	- `sdv-id-NSZqBz`
-- SalesRep
-	- The employee receiving the compensation.
-	- `James (Katy)`
-- PeriodEnding
-	- The final date of the billing cycle that generated this specific payout.
-	- `2026-02-28 00:00:00`
-- CommissionRate
-	- The tiered percentage applied to the revenue (5% for the first 30 days, 2% residual thereafter).
-	- `0.05`
-- Amount
-	- The final dollar amount owed to the sales representative for that period.
-	- `233.7`
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **EquipmentID** | TEXT | Unique primary key identifying the physical asset[cite: 7]. |
+| **Description** | TEXT | The name and specifications of the asset[cite: 7]. |
+| **DailyRate** | REAL | The baseline dollar amount charged per day to rent the item[cite: 7]. |
+| **ReplacementCost** | REAL | The total monetary value charged if the asset is destroyed or lost[cite: 7]. |
+| **AssetCategory** | TEXT | The high-level operational classification (e.g., Trench Safety)[cite: 7]. |
+
+### **Contracts**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **ContractID** | TEXT | Unique primary key identifying the rental agreement[cite: 7]. |
+| **CustomerID** | TEXT | Identifier for the client renting the equipment[cite: 7]. |
+| **OutDate** | TIMESTAMP | The calendar date the equipment physically left the rental yard[cite: 7]. |
+| **ExpectedReturnDate** | TIMESTAMP | The initial agreed-upon date the customer stated they would return the equipment[cite: 7]. |
+| **ActualReturnDate** | TIMESTAMP | The true date the equipment was returned[cite: 7]. |
+| **Status** | TEXT | The overarching state of the rental agreement[cite: 7]. |
+| **SalesRep** | TEXT | The name of the employee who manages the account and earns commissions[cite: 7]. |
+
+### **ContractLines**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **LineID** | TEXT | Unique primary key for the specific row item on the contract[cite: 7]. |
+| **ContractID** | TEXT | Foreign key linking back to the parent `Contracts` table[cite: 7]. |
+| **EquipmentID** | TEXT | Foreign key linking to the specific asset rented from the `Equipment` table[cite: 7]. |
+| **Quantity** | INTEGER | The physical count of that specific asset rented on this line[cite: 7]. |
+
+### Operational Tracking (Bronze Layer)
+
+**RoutingHistory**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **RoutingID** | TEXT | Unique primary key for the specific tracking event[cite: 7]. |
+| **EquipmentID** | TEXT | Foreign key identifying which asset moved[cite: 7]. |
+| **ContractID** | TEXT | Foreign key identifying which contract triggered the movement[cite: 7]. |
+| **Status** | TEXT | The operational state at that exact moment[cite: 7]. |
+| **EventTimestamp** | TIMESTAMP | The precise date and time the system recorded the status change[cite: 7]. |
+
+### Financial Processing (Gold Layer)
+
+**GeneralLedger**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **TransactionID** | TEXT | Unique primary key for the double-entry accounting record[cite: 7]. |
+| **ContractID** | TEXT | Foreign key linking the revenue back to the specific rental agreement[cite: 7]. |
+| **Date** | TIMESTAMP | The date the revenue is officially recognized[cite: 7]. |
+| **Account** | TEXT | The financial bucket being impacted[cite: 7]. |
+| **Debit** | REAL | An accounting entry that increases an asset or decreases a liability[cite: 7]. |
+| **Credit** | REAL | An accounting entry that increases a liability or recognizes earned revenue[cite: 7]. |
+
+### **Commissions**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **CommissionID** | TEXT | Unique primary key for the payout record[cite: 7]. |
+| **ContractID** | TEXT | Foreign key linking the payout to the rental agreement[cite: 7]. |
+| **SalesRep** | TEXT | The employee receiving the compensation[cite: 7]. |
+| **PeriodEnding** | TIMESTAMP | The final date of the billing cycle that generated this specific payout[cite: 7]. |
+| **CommissionRate** | REAL | The tiered percentage applied to the revenue[cite: 7]. |
+| **Amount** | REAL | The final dollar amount owed to the sales representative[cite: 7]. |
+---
 ---
 
-### `etl_pipeline.py`
 
+## `etl_pipeline.py`
 
--------------                    |
+## Dimension Tables
+
+### **Dim_Equipment**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **EquipmentKey** | INTEGER | Surrogate primary key for the equipment dimension. |
+| **EquipmentID** | TEXT | Original operational identifier for the physical asset. |
+| **Description** | TEXT | The name and specifications of the asset. |
+| **DailyRate** | REAL | The baseline dollar amount charged per day. |
+| **ReplacementCost** | REAL | The monetary value charged if the asset is destroyed. |
+| **AssetCategory** | TEXT | The high-level operational classification. |
+| **Valid_From** | TIMESTAMP | Timestamp indicating when this record version became active, supporting Slowly Changing Dimensions (SCD). |
+| **Valid_To** | TIMESTAMP | Timestamp indicating when this record version expired. |
+| **Is_Current** | INTEGER | Flag indicating if this is the currently active record version. |
+
+### **Dim_Contract**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **ContractKey** | INTEGER | Surrogate primary key for the contract dimension. |
+| **ContractID** | TEXT | Original operational identifier for the rental agreement. |
+| **CustomerID** | TEXT | Identifier for the client renting the equipment. |
+| **OutDate** | TIMESTAMP | Date the equipment physically left the rental yard. |
+| **ExpectedReturnDate** | TEXT | The initial agreed-upon return date. |
+| **ActualReturnDate** | TEXT | The true date the equipment was returned. |
+| **Status** | TEXT | The overarching state of the rental agreement. |
+| **SalesRep** | TEXT | The employee who manages the account and earns commissions. |
+
+### **Dim_Date**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **DateKey** | INTEGER | Surrogate primary key for the date dimension, typically formatted as YYYYMMDD. |
+| **FullDate** | TIMESTAMP | The standard datetime representation of the exact date. |
+| **Year** | INTEGER | The calendar year. |
+| **Quarter** | INTEGER | The calendar quarter (1-4). |
+| **Month** | INTEGER | The calendar month (1-12). |
+| **DayOfWeek** | TEXT | The text name of the day (e.g., Monday, Tuesday). |
+
+## Fact Tables
+
+### **Fact_Routing**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **RoutingID** | TEXT | Unique identifier for the specific tracking event. |
+| **DateKey** | INTEGER | Foreign key linking to the `Dim_Date` table for the event date. |
+| **ContractKey** | INTEGER | Foreign key linking to the `Dim_Contract` table. |
+| **EquipmentKey** | INTEGER | Foreign key linking to the `Dim_Equipment` table. |
+| **Status** | TEXT | The operational state at that exact moment. |
+| **EventTimestamp** | TIMESTAMP | The precise date and time the system recorded the status change. |
+
+### **Fact_Financials**
+
+| Column | Type | Purpose |
+| :--- | :--- | :--- |
+| **TransactionID** | TEXT | Unique identifier for the double-entry accounting record. |
+| **DateKey** | INTEGER | Foreign key linking to the `Dim_Date` table for when revenue is recognized. |
+| **ContractKey** | INTEGER | Foreign key linking to the `Dim_Contract` table. |
+| **Account** | TEXT | The financial bucket being impacted (e.g., Accounts Receivable, Rental Revenue). |
+| **Debit** | REAL | An accounting entry that increases an asset or decreases a liability. |
+| **Credit** | REAL | An accounting entry that increases a liability or recognizes earned revenue. |
+---
+---
