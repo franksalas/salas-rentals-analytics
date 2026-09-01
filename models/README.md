@@ -28,32 +28,32 @@ Processes the raw rental timelines to calculate complex accounting logic, output
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **EquipmentID** | TEXT | Unique primary key identifying the physical asset[cite: 7]. |
-| **Description** | TEXT | The name and specifications of the asset[cite: 7]. |
-| **DailyRate** | REAL | The baseline dollar amount charged per day to rent the item[cite: 7]. |
-| **ReplacementCost** | REAL | The total monetary value charged if the asset is destroyed or lost[cite: 7]. |
-| **AssetCategory** | TEXT | The high-level operational classification (e.g., Trench Safety)[cite: 7]. |
+| **EquipmentID** | TEXT | Unique primary key identifying the physical asset |
+| **Description** | TEXT | The name and specifications of the asset |
+| **DailyRate** | REAL | The baseline dollar amount charged per day to rent the item |
+| **ReplacementCost** | REAL | The total monetary value charged if the asset is destroyed or lost |
+| **AssetCategory** | TEXT | The high-level operational classification (e.g., Trench Safety) |
 
 ### **Contracts**
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **ContractID** | TEXT | Unique primary key identifying the rental agreement[cite: 7]. |
-| **CustomerID** | TEXT | Identifier for the client renting the equipment[cite: 7]. |
-| **OutDate** | TIMESTAMP | The calendar date the equipment physically left the rental yard[cite: 7]. |
-| **ExpectedReturnDate** | TIMESTAMP | The initial agreed-upon date the customer stated they would return the equipment[cite: 7]. |
-| **ActualReturnDate** | TIMESTAMP | The true date the equipment was returned[cite: 7]. |
-| **Status** | TEXT | The overarching state of the rental agreement[cite: 7]. |
-| **SalesRep** | TEXT | The name of the employee who manages the account and earns commissions[cite: 7]. |
+| **ContractID** | TEXT | Unique primary key identifying the rental agreement |
+| **CustomerID** | TEXT | Identifier for the client renting the equipment |
+| **OutDate** | TIMESTAMP | The calendar date the equipment physically left the rental yard |
+| **ExpectedReturnDate** | TIMESTAMP | The initial agreed-upon date the customer stated they would return the equipment |
+| **ActualReturnDate** | TIMESTAMP | The true date the equipment was returned |
+| **Status** | TEXT | The overarching state of the rental agreement |
+| **SalesRep** | TEXT | The name of the employee who manages the account and earns commissions |
 
 ### **ContractLines**
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **LineID** | TEXT | Unique primary key for the specific row item on the contract[cite: 7]. |
-| **ContractID** | TEXT | Foreign key linking back to the parent `Contracts` table[cite: 7]. |
-| **EquipmentID** | TEXT | Foreign key linking to the specific asset rented from the `Equipment` table[cite: 7]. |
-| **Quantity** | INTEGER | The physical count of that specific asset rented on this line[cite: 7]. |
+| **LineID** | TEXT | Unique primary key for the specific row item on the contract |
+| **ContractID** | TEXT | Foreign key linking back to the parent `Contracts` table |
+| **EquipmentID** | TEXT | Foreign key linking to the specific asset rented from the `Equipment` table |
+| **Quantity** | INTEGER | The physical count of that specific asset rented on this line |
 
 ### Operational Tracking (Bronze Layer)
 
@@ -61,11 +61,11 @@ Processes the raw rental timelines to calculate complex accounting logic, output
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **RoutingID** | TEXT | Unique primary key for the specific tracking event[cite: 7]. |
-| **EquipmentID** | TEXT | Foreign key identifying which asset moved[cite: 7]. |
-| **ContractID** | TEXT | Foreign key identifying which contract triggered the movement[cite: 7]. |
-| **Status** | TEXT | The operational state at that exact moment[cite: 7]. |
-| **EventTimestamp** | TIMESTAMP | The precise date and time the system recorded the status change[cite: 7]. |
+| **RoutingID** | TEXT | Unique primary key for the specific tracking event |
+| **EquipmentID** | TEXT | Foreign key identifying which asset moved |
+| **ContractID** | TEXT | Foreign key identifying which contract triggered the movement |
+| **Status** | TEXT | The operational state at that exact moment |
+| **EventTimestamp** | TIMESTAMP | The precise date and time the system recorded the status change |
 
 ### Financial Processing (Gold Layer)
 
@@ -73,23 +73,23 @@ Processes the raw rental timelines to calculate complex accounting logic, output
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **TransactionID** | TEXT | Unique primary key for the double-entry accounting record[cite: 7]. |
-| **ContractID** | TEXT | Foreign key linking the revenue back to the specific rental agreement[cite: 7]. |
-| **Date** | TIMESTAMP | The date the revenue is officially recognized[cite: 7]. |
-| **Account** | TEXT | The financial bucket being impacted[cite: 7]. |
-| **Debit** | REAL | An accounting entry that increases an asset or decreases a liability[cite: 7]. |
-| **Credit** | REAL | An accounting entry that increases a liability or recognizes earned revenue[cite: 7]. |
+| **TransactionID** | TEXT | Unique primary key for the double-entry accounting record |
+| **ContractID** | TEXT | Foreign key linking the revenue back to the specific rental agreement |
+| **Date** | TIMESTAMP | The date the revenue is officially recognized |
+| **Account** | TEXT | The financial bucket being impacted |
+| **Debit** | REAL | An accounting entry that increases an asset or decreases a liability |
+| **Credit** | REAL | An accounting entry that increases a liability or recognizes earned revenue |
 
 ### **Commissions**
 
 | Column | Type | Purpose |
 | :--- | :--- | :--- |
-| **CommissionID** | TEXT | Unique primary key for the payout record[cite: 7]. |
-| **ContractID** | TEXT | Foreign key linking the payout to the rental agreement[cite: 7]. |
-| **SalesRep** | TEXT | The employee receiving the compensation[cite: 7]. |
-| **PeriodEnding** | TIMESTAMP | The final date of the billing cycle that generated this specific payout[cite: 7]. |
-| **CommissionRate** | REAL | The tiered percentage applied to the revenue[cite: 7]. |
-| **Amount** | REAL | The final dollar amount owed to the sales representative[cite: 7]. |
+| **CommissionID** | TEXT | Unique primary key for the payout record |
+| **ContractID** | TEXT | Foreign key linking the payout to the rental agreement |
+| **SalesRep** | TEXT | The employee receiving the compensation |
+| **PeriodEnding** | TIMESTAMP | The final date of the billing cycle that generated this specific payout |
+| **CommissionRate** | REAL | The tiered percentage applied to the revenue |
+| **Amount** | REAL | The final dollar amount owed to the sales representative |
 ---
 ---
 

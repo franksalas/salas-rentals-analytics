@@ -25,6 +25,6 @@ The database (`salas_rental_system.db`) mimics a live equipment rental software 
 
 
 ## Data Warehouse (OLAP)
-Acts as the bridge between the transactional backend and the analytical reporting layer by extracting raw OLTP data, cleansing operational routing anomalies, and transforming the normalized records into a dimensional Star Schema optimized for Power BI.
+The database (`salas_rental_data_warehouse.db`) acts as the bridge between the transactional backend and the analytical reporting layer by extracting raw OLTP data, cleansing operational routing anomalies, and transforming the normalized records into a dimensional Star Schema optimized for Power BI.
 ### Entity Relationship Diagram
 ![alt text](img/OLAP_diagram.png)
